@@ -15,22 +15,21 @@ class particle {
     // list of all neighbor particles
     int *neighbor_index;
 
-    // smoothing radius
-    double SR = 0.05;
-
-    double dt = 0.05;
-    double mass = 1.0;
-    double kappa = 100.0;                 // stiffness parameter - gas constant
-    double rest_density = 0.4;        // rest density (target density of the fluid when at equilibrium)
-    double nu = 1.0;                    // viscosity strength
+    // static belongs to the class - not specific to the object
+    static double SR;
+    static double dt;
+    static double mass;
+    static double kappa;                // stiffness parameter - gas constant
+    static double rest_density;         // rest density (target density of the fluid when at equilibrium)
+    static double nu;                   // viscosity strength
 
     vector<double> position{0.0, 0.0};
     vector<double> velocity{0.0, 0.0};
     vector<double> acceleration{0.0, 0.0};
 
     // calculated properties
-    double pressure;
-    double density;
+    double pressure{0.0};
+    double density{0.0};
     vector<double> force = {0.0, 0.0};
 
     // need to fix how destructor is implemented
@@ -61,10 +60,24 @@ class particle {
     
     }
 
+    
+    static void update_parameters(double newDT, double newSR, double newMass, double newKappa, double newRestDensity, double newNu){
+        
+        dt = newDT;
+        SR = newSR;
+        mass = newMass;
+        kappa = newKappa;
+        rest_density = newRestDensity;
+        nu = newNu;
+    }
 
     // calculate nearest neighbor indices
     void calc_NNindex( vector<particle> plist ){
-        
+       
+        for (int i=0; i<nParticles_; i++){
+            neighbor_index[i] = -1;
+        }
+
         for (particle &p : plist){
             
             // calc vector & magnitude displacement
@@ -106,18 +119,20 @@ class particle {
                 vector<double> rdiff_vec = calc_rdiff(p);
                     
                 // quadratic smoothing kernal
-                double r_mag = mag(rdiff_vec);
+                //double r_mag = mag(rdiff_vec);
                 //density += mass * W_quad(r_mag);
 
                 // guassian smoothing kernal
                 density += mass * W_gauss(rdiff_vec);
 
-               // printf("W_gauss: %f\n", W_gauss(rdiff_vec) );
+                //printf("particle: %d | W_gauss: %f\n", p.index_, W_gauss(rdiff_vec) );
                 //printf("W_quad: %f\n", W_quad(r_mag) );
+
             
             }
         }    
     
+
         // check density for each particle
         //printf("p%d | density %f\n", index_, density);
      }
@@ -142,8 +157,8 @@ class particle {
         vector<double> Fg = F_gravity();
 
 
-        force[0] = Fp[0]; //+ Fv[0] + Fg[0];    
-        force[1] = Fp[1]; //+ Fv[1] + Fg[1];    
+        force[0] = Fp[0]; // /*+ Fv[0]*/ + Fg[0];    
+        force[1] = Fp[1]; // /*+ Fv[1]*/ + Fg[1];    
 
         // checking forces
         //printf("p%d | force[0]: %f | force[1]: %f \n", index_, Fv[0], Fv[1]);        
@@ -152,11 +167,9 @@ class particle {
     // updates velocity
     void update_vel(){
 
-        double vx_dt = velocity[0] + ( (dt * force[0]) / mass ); 
-        double vy_dt = velocity[1] + ( (dt * force[1]) / mass ); 
-        
-        velocity[0] = vx_dt;
-        velocity[1] = vy_dt;
+        velocity[0] = (dt * force[0]) / mass; 
+        velocity[1] = (dt * force[1]) / mass; 
+       
     }
 
     // updates positons
@@ -180,8 +193,8 @@ class particle {
 
             // if particles are colliding
             if (position[0] == p.position[0] && position[1] == p.position[1]) {
-                velocity[0] *= -1.0;
-                velocity[1] *= -1.0;
+                velocity[0] *= -0.75;
+                velocity[1] *= -0.75;
             }
 
         }
@@ -196,19 +209,22 @@ class particle {
         double y_pos = position[1];
 
         // fix x-axis particle to inside window
-        if (x_pos >= 0.98 ) {
-            position[0] = 0.98;
-
-        } else if (x_pos <= -0.98) {
-            position[0] = -0.98;
+        if (x_pos >= 98.0 ) {
+            position[0] = 98.0;
+            //velocity[0] *= -0.8;
+        } else if (x_pos <= -98.0) {
+            position[0] = -98.0;
+            //velocity[0] *= -0.8;
         }
         
 
         // fix y-axis particle to inside window
-        if (y_pos >= 0.98) {
-            position[1] = 0.98;
-        } else if (y_pos <= -0.98) {
-            position[1] = -0.98;
+        if (y_pos >= 98.0) {
+            position[1] = 98.0;
+            //velocity[1] *= -0.8;
+        } else if (y_pos <= -98.0) {
+            position[1] = -98.0;
+            //velocity[1] *= -0.8;
         }
     }
 
@@ -216,14 +232,15 @@ class particle {
     double W_gauss(vector<double> rdiff_vec){
         
         // normalisation
-        double N = 1.0 / ( 2.0 * pow(M_PI, 1.5) * abs(SR) );
+        //double N = 1.0 / ( 2.0 * pow(M_PI, 1.5) * abs(SR) );
+        double N = 1.0 / ( M_PI * SR * (1.0 - exp(-1.0)) );
 
         // r^2
         double r_dot = rdiff_vec[0] * rdiff_vec[0] + rdiff_vec[1] * rdiff_vec[1];
         //double rmag = mag(rdiff_vec);
 
         // gaussian exponential
-        double exponent = -1.0 * pow(r_dot, 2.0) / pow(SR, 2.0);
+        double exponent = -1.0 * r_dot / pow(SR, 2.0);
         double e =  exp( exponent );
 
         return N * e;    
@@ -300,8 +317,8 @@ class particle {
         }
         //printf("mass: %f | density: %f | del_px: %f \n", mass, density, del_px);
 
-        double Fx_p =  -1.0 * Grad_px;
-        double Fy_p =  -1.0 * Grad_py;
+        double Fx_p =  -1.0 * (mass/density) * Grad_px;
+        double Fy_p =  -1.0 * (mass/density) * Grad_py;
         
         vector<double> Fp = {Fx_p, Fy_p};
         return Fp;
@@ -354,7 +371,7 @@ class particle {
     // calc gravitational force
     vector<double> F_gravity(){
 
-        double Fy_g = -1.0 * mass * 9.8;
+        double Fy_g = -1.0 * mass * 3.8;
         vector<double> Fg = {0.0, Fy_g};
         
         return Fg;

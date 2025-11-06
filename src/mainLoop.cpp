@@ -5,99 +5,90 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"       // ImGui ↔ GLFW integration
+#include "backends/imgui_impl_opengl3.h"    // ImGui ↔ OpenGL3 rendering
+
 #include <math.h>
 #include <cmath>
 #include <vector>
 
 // project files
 #include "particleMethods.cpp"
-#include "viz.cpp"
-// this file will hold the main loop for the liquid simulation.
+#include "windowManager.cpp"
 
-
-#define screenWidth 5
-#define screenHeight 5
 
 using namespace std;
-const double h = 0.05;
+
+// defining static class members - allocated in data segment memory  (static class variables)
+double particle::SR = 25.0; 
+double particle::dt = 0.2;
+double particle::mass = 1.0;
+double particle::kappa = 1000.0;                // stiffness parameter - gas constant
+double particle::rest_density = 0.05;           // rest density (target density of the fluid when at equilibrium)
+double particle::nu = 1.0;                      // viscosity strength
+
 
 int main(int argc, char** argv) {
 
-    const int nParticles = 4;
+    const int nParticles = 150;
     vector<particle> plist;
 
     vector<double> pos = {0.0, 0.0};
     vector<double> vel = {0.0, 0.0};
   
-    //particle p1; 
-    //p1.Init(pos, vel);
-    //printf("Initialised vel: %f %f \n", p1.velocity[0], p1.velocity[1]);
 
     for (int i=0; i<nParticles; i++) {
-            
+
         // particle initial conditions
-        pos[0] += 0.025;
-        if (i%5==0) {
-            pos[0] = 0.0;    
-            pos[1] += 0.050;
-        }
-   
+        int x = -100 + rand() % (100 + 100 + 1);
+        int y = -100 + rand() % (100 + 100 + 1);
+
+        pos[0] = (double)x;
+        pos[1] = (double)y;
+
         // set initial particle arguments and smoothing radius 
         particle p(pos, vel, i, nParticles);
-        //p.set_SR(h);
-
-        printf("Initialised pos: %f %f \n", p.position[0], p.position[1]);
 
         plist.push_back(p);
 
     }
 
+    // local simulation parameters
+    float SR = 25.0; 
+    float dt = 0.2;
+    float mass = 1.0;
+    float kappa = 1000.0;                // stiffness parameter - gas constant
+    float rest_density = 0.05;           // rest density (target density of the fluid when at equilibrium)
+    float nu = 1.0;                      // viscosity strength
 
-    // Initialise GLFW
-    glewExperimental = true; // Needed for core profile
-    if( !glfwInit() ) {
-        fprintf( stderr, "Failed to initialize GLFW\n" );
-        return -1;
-    }
 
-    // Open a window and create its OpenGL context
-    GLFWwindow* window = glfwCreateWindow( 1000, 800, "Fluid Simulation", NULL, NULL);
-    if( window == NULL ) {
-        fprintf( stderr, "Failed to open GLFW window.\n" );
-        glfwTerminate();
-        return -1;
-    } 
+    float centerVal{kappa};
+    float minVal{max(centerVal-(float)5000.0, (float)0.0)}, maxVal{centerVal+(float)5000.0};
 
-    // Ensure we can capture the escape key being pressed below 
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE); 
-    glfwMakeContextCurrent(window);
 
-    // Initialize GLEW
-     glewExperimental=true; // Needed in core profile
-    if (!glewInit()) {
-        fprintf(stderr, "Failed to initialize GLEW\n");
-        return -1;
-    }
-
-    //point size in normalised coordinates
-    double normX_ps = (1.0/800) * 20.0;
-    double normY_ps = (1.0/1000) * 20.0;
-
-    // Set OpenGL state
-    glPointSize(10.0f); // Make particles more visible
-    glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-    
-
+    // experimenting with class based gui
+    windowGUI gui(600, 200, "Parameter Controls");
+    //windowSimulation(800, 500, "SPH Simulation");
 
     // Main loop
-    while( glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(window) == 0 ) {
+    while( glfwGetKey(gui.window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(gui.window) == 0 ) {
 
- 
+        // step 0: update simulation input parameters from gui
+        particle::update_parameters( (double)dt,
+                                     (double)SR,
+                                     (double)mass,
+                                     (double)kappa,
+                                     (double)rest_density,
+                                     (double)nu             );
+        
+
+
         // step 1: find all neighbour particles
         for (particle &p : plist){
             
             // calc nearest particles & stores as class variable
-            p.calc_NNindex(plist);
+           p.calc_NNindex(plist);
         }
 
 
@@ -132,16 +123,40 @@ int main(int argc, char** argv) {
         for (particle &p : plist) {
                 
             // calculating force per particle    
-            //p.ff_collisions(plist);
+           // p.ff_collisions(plist);
             //p.update_pos();
             
             //printf("index %d | px:%f | py:%f \n", p.index_,  p.position[0], p.position[1]);
         }
 
-        // clears color of draw bit
-        glClear(GL_COLOR_BUFFER_BIT);
+        // check for new inputs
+        glfwPollEvents();
+        
+       
 
+        // using gui class for DearImGUi
+        gui.makeCurrentContext();
+        gui.createNewFrame();
+        gui.beginDraw("Variable Parameters v2");
+
+        kappa = gui.addSlider("Kappa:", (float)kappa, (float)2000.0, (float)0.0);
+        SR = gui.addSlider("SR:   ", (float)SR, (float)50.0, (float)0.0);
+        dt = gui.addSlider("dt:   ", (float)dt, (float)1.0, (float)0.0);
+        mass = gui.addSlider("mass: ", (float)mass, (float)2.0, (float)0.0);
+        rest_density = gui.addSlider("rho_0:", (float)rest_density, (float)0.5, (float)0.0);
+        nu = gui.addSlider("Nu:   ", (float)nu, (float)2.0, (float)0.0);
+        
+        gui.endDraw();
+        gui.Render();
+   
+
+        //windowSimulation().DrawParticles();
+
+        /*
         // Render particles
+        glfwMakeContextCurrent(window);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
         glBegin(GL_POINTS);
         glColor3f(0.2f, 0.7f, 1.0f); // Blueish color
         for (auto &p : plist) {
@@ -149,11 +164,11 @@ int main(int argc, char** argv) {
 
         }
         glEnd();
-
         glfwSwapBuffers(window);
-        glfwPollEvents();
+        */
 
     }
+
     glfwTerminate();
 
 
