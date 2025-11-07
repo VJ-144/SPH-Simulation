@@ -35,16 +35,23 @@ target_include_directories( imgui PUBLIC
 target_link_directories(imgui PUBLIC glfw GLEW::GLEW OpenGL::GL)
 # ---------------------------
 
+# adds source code
 add_executable( run 
-                src/mainLoop.cpp 
+                src/mainLoop.cpp
                 src/particleMethods.cpp
-                src/windowManager.cpp )
+                src/windowManager.cpp
+                src/windowGUI.cpp
+                src/windowSimulation.cpp )
 
+# Adds header source files
+target_include_directories( run PUBLIC include )
 
+# links libs 
 target_link_libraries(  run
                         GLEW::GLEW
                         glfw
                         OpenGL::GL
                         imgui        )
 
+# links libs headers                
 target_link_directories( run PUBLIC libs/glfw/include )

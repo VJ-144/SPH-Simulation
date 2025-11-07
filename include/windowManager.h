@@ -23,10 +23,10 @@ class windowManager
     // class variables
     GLFWwindow *window;
     float size_w, size_h;
-    const char* windowName;
+    std::string windowName;
 
     // constructor creates window
-    windowManager(int size_w, int size_h, const char* windowName);
+    windowManager(int size_w, int size_h, std::string windowName);
 
 };
 

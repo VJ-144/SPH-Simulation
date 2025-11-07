@@ -14,12 +14,14 @@
 #include "windowManager.h"
 #include "particleMethods.h"
 
-class simulationWindow : public windowManager
+class windowSimulation : public windowManager
 {
     public:
+
+
         
         // constructor sets simulation asthetics
-        simulationWindow(float size_w, float size_h, const char* windowName);
+        windowSimulation(float size_w, float size_h, std::string windowName);
 
         // draws particle positions
         void DrawParticles(std::vector<particle> plist);

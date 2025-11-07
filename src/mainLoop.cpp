@@ -14,14 +14,14 @@
 #include <vector>
 
 // project files
-#include "particleMethods.cpp"
-#include "windowManager.cpp"
+#include "particleMethods.h"
 
-
-using namespace std;
+#include "windowManager.h"
+#include "windowGUI.h"
+#include "windowSimulation.h"
 
 // defining static class members - allocated in data segment memory  (static class variables)
-double particle::SR = 25.0; 
+double particle::SR = 14.0; 
 double particle::dt = 0.2;
 double particle::mass = 1.0;
 double particle::kappa = 1000.0;                // stiffness parameter - gas constant
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
     }
 
     // local simulation parameters
-    float SR = 25.0; 
+    float SR = 14.0; 
     float dt = 0.2;
     float mass = 1.0;
     float kappa = 1000.0;                // stiffness parameter - gas constant
@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 
     // experimenting with class based gui
     windowGUI gui(600, 200, "Parameter Controls");
-    //windowSimulation(800, 500, "SPH Simulation");
+    windowSimulation simWindow((float)800, (float)600, "SPH Simulation");
 
     // Main loop
     while( glfwGetKey(gui.window, GLFW_KEY_ESCAPE ) != GLFW_PRESS && glfwWindowShouldClose(gui.window) == 0 ) {
@@ -132,7 +132,6 @@ int main(int argc, char** argv) {
         // check for new inputs
         glfwPollEvents();
         
-       
 
         // using gui class for DearImGUi
         gui.makeCurrentContext();
@@ -150,22 +149,9 @@ int main(int argc, char** argv) {
         gui.Render();
    
 
-        //windowSimulation().DrawParticles();
 
-        /*
-        // Render particles
-        glfwMakeContextCurrent(window);
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        glBegin(GL_POINTS);
-        glColor3f(0.2f, 0.7f, 1.0f); // Blueish color
-        for (auto &p : plist) {
-            glVertex2f(p.position[0], p.position[1]);      
-
-        }
-        glEnd();
-        glfwSwapBuffers(window);
-        */
+        // render particles
+        simWindow.DrawParticles(plist);
 
     }
 

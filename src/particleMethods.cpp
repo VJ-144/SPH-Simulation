@@ -1,50 +1,14 @@
 #include <stdlib.h>
 #include <bits/stdc++.h>
 #include <vector>
-
-using namespace std;
-
-// 2D particle class
-class particle {
-  public:
-
-    // particle label
-    int index_;
-    int nParticles_;
-
-    // list of all neighbor particles
-    int *neighbor_index;
-
-    // static belongs to the class - not specific to the object
-    static double SR;
-    static double dt;
-    static double mass;
-    static double kappa;                // stiffness parameter - gas constant
-    static double rest_density;         // rest density (target density of the fluid when at equilibrium)
-    static double nu;                   // viscosity strength
-
-    vector<double> position{0.0, 0.0};
-    vector<double> velocity{0.0, 0.0};
-    vector<double> acceleration{0.0, 0.0};
-
-    // calculated properties
-    double pressure{0.0};
-    double density{0.0};
-    vector<double> force = {0.0, 0.0};
-
-    // need to fix how destructor is implemented
-    // cause we store all particles in a vector the destructor is called as the vector reallocates space for new elements
-//    ~particle() {
-//        printf("particle destroyed\n");
-//    }
-
-    
-    // constructor
-    particle(){};
+#include "particleMethods.h"
 
     // constructor
-    particle( vector<double> pos, vector<double> vel, int index, int nParticles) 
-            : position(pos), velocity(vel), index_(index), nParticles_(nParticles){
+    particle::particle(){};
+
+    // constructor
+    particle::particle( vector<double> pos, vector<double> vel, int index, int nParticles) : position(pos), velocity(vel), index_(index), nParticles_(nParticles)
+    {
         
         // check arguments valid
         if (2 != pos.size()) {
@@ -61,7 +25,8 @@ class particle {
     }
 
     
-    static void update_parameters(double newDT, double newSR, double newMass, double newKappa, double newRestDensity, double newNu){
+    void particle::update_parameters(double newDT, double newSR, double newMass, double newKappa, double newRestDensity, double newNu)
+    {
         
         dt = newDT;
         SR = newSR;
@@ -72,7 +37,7 @@ class particle {
     }
 
     // calculate nearest neighbor indices
-    void calc_NNindex( vector<particle> plist ){
+    void particle::calc_NNindex( vector<particle> plist ){
        
         for (int i=0; i<nParticles_; i++){
             neighbor_index[i] = -1;
@@ -104,7 +69,8 @@ class particle {
     }
 
     // plist    - list of all particles
-    void calc_density(vector<particle> plist){
+    void particle::calc_density(vector<particle> plist)
+    {
         
         density = 0.0;
         // loop over all particles
@@ -137,14 +103,16 @@ class particle {
         //printf("p%d | density %f\n", index_, density);
      }
 
-    void calc_pressure(){
+    void particle::calc_pressure()
+    {
    
            pressure = kappa * ( density - rest_density ); 
     }
 
 
     // calculates pressure, viscosity and gravitational force on particle
-    void calc_force(vector<particle> plist){
+    void particle::calc_force(vector<particle> plist)
+    {
    
 
         force[0] = 0.0;
@@ -165,7 +133,8 @@ class particle {
     }
 
     // updates velocity
-    void update_vel(){
+    void particle::update_vel()
+    {
 
         velocity[0] = (dt * force[0]) / mass; 
         velocity[1] = (dt * force[1]) / mass; 
@@ -173,7 +142,8 @@ class particle {
     }
 
     // updates positons
-    void update_pos(){
+    void particle::update_pos()
+    {
     
         double dx_dt = position[0] + ( dt * velocity[0] );
         double dy_dt = position[1] + ( dt * velocity[1] );
@@ -187,7 +157,8 @@ class particle {
 
 
 
-    void ff_collisions(vector<particle> plist) {
+    void particle::ff_collisions(vector<particle> plist) 
+    {
         
         for (particle &p : plist) {
 
@@ -202,8 +173,8 @@ class particle {
     }
 
 
-  private:
-    void fix_windowEdges() {
+    void particle::fix_windowEdges() 
+    {
 
         double x_pos = position[0];
         double y_pos = position[1];
@@ -229,7 +200,8 @@ class particle {
     }
 
     // smoothing kernal W_ij - where pdiff is the distance between particles 
-    double W_gauss(vector<double> rdiff_vec){
+    double particle::W_gauss(vector<double> rdiff_vec)
+    {
         
         // normalisation
         //double N = 1.0 / ( 2.0 * pow(M_PI, 1.5) * abs(SR) );
@@ -246,7 +218,8 @@ class particle {
         return N * e;    
     }
 
-    vector<double> Grad_W_gauss(vector<double> rdiff_vec){
+    vector<double> particle::Grad_W_gauss(vector<double> rdiff_vec)
+    {
     
         double Ax = ( -2.0 * rdiff_vec[0] ) / pow(SR, 2.0);
         double Ay = ( -2.0 * rdiff_vec[1] ) / pow(SR, 2.0);
@@ -261,7 +234,8 @@ class particle {
         return grad_W;
     }
 
-    double Laplacian_W_gauss(vector<double> rdiff_vec){
+    double particle::Laplacian_W_gauss(vector<double> rdiff_vec)
+    {
         
         // r^2
         double r_dot = rdiff_vec[0] * rdiff_vec[0] + rdiff_vec[1] * rdiff_vec[1];
@@ -274,7 +248,8 @@ class particle {
     }
 
     // calculates magnitude of 2D vector
-    double mag(vector<double> quant){
+    double particle::mag(vector<double> quant)
+    {
 
         double mag = quant[0] * quant[0] + quant[1] * quant[1];
         return sqrt(mag);
@@ -282,7 +257,8 @@ class particle {
     
     
     // get vector displacement between class and argument particle
-    vector<double> calc_rdiff(particle p2){
+    vector<double> particle::calc_rdiff(particle p2)
+    {
         
         double x_coor = position[0] - p2.position[0];
         double y_coor = position[1] - p2.position[1];
@@ -292,7 +268,8 @@ class particle {
     }
 
     // calc pressure force
-    vector<double> F_pressure(vector<particle> plist){
+    vector<double> particle::F_pressure(vector<particle> plist)
+    {
 
         double Grad_px = 0.0;
         double Grad_py = 0.0;
@@ -326,7 +303,8 @@ class particle {
 
 
     // calc viscosity force
-    vector<double> F_viscosity(vector<particle> plist){
+    vector<double> particle::F_viscosity(vector<particle> plist)
+    {
     
         double laplacian_vx = 0.0;
         double laplacian_vy = 0.0;
@@ -369,7 +347,8 @@ class particle {
     }
     
     // calc gravitational force
-    vector<double> F_gravity(){
+    vector<double> particle::F_gravity()
+    {
 
         double Fy_g = -1.0 * mass * 3.8;
         vector<double> Fg = {0.0, Fy_g};
@@ -377,10 +356,6 @@ class particle {
         return Fg;
     }
 
-
-
-
-};
 
 
 
