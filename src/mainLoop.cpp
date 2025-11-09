@@ -119,15 +119,6 @@ int main(int argc, char** argv) {
             //printf("index %d | px:%f | py:%f \n", p.index_,  p.position[0], p.position[1]);
         }
 
-        // add fluid-fluid collisions
-        for (particle &p : plist) {
-                
-            // calculating force per particle    
-           // p.ff_collisions(plist);
-            //p.update_pos();
-            
-            //printf("index %d | px:%f | py:%f \n", p.index_,  p.position[0], p.position[1]);
-        }
 
         // check for new inputs
         glfwPollEvents();

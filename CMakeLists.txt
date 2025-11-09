@@ -2,6 +2,8 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.5.0)
 project(liquid VERSION 0.1.0)
 cmake_policy(SET CMP0072 NEW)
 
+enable_testing()
+
 # OpenGL and GLEW installed globally on system
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
@@ -51,7 +53,14 @@ target_link_libraries(  run
                         GLEW::GLEW
                         glfw
                         OpenGL::GL
-                        imgui        )
+                        imgui
+                        gtest
+                        gtest_main
+                        pthread        )
 
 # links libs headers                
 target_link_directories( run PUBLIC libs/glfw/include )
+
+# add gtest
+include(GoogleTest)
+gtest_discover_tests(run)

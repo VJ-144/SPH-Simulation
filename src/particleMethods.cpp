@@ -350,7 +350,7 @@
     vector<double> particle::F_gravity()
     {
 
-        double Fy_g = -1.0 * mass * 3.8;
+        double Fy_g = -1.0 * mass * 9.8;
         vector<double> Fg = {0.0, Fy_g};
         
         return Fg;
