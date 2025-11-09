@@ -27,7 +27,7 @@
     
     void particle::update_parameters(double newDT, double newSR, double newMass, double newKappa, double newRestDensity, double newNu)
     {
-        
+       
         dt = newDT;
         SR = newSR;
         mass = newMass;

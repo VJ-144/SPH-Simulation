@@ -2,10 +2,18 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.5.0)
 project(liquid VERSION 0.1.0)
 cmake_policy(SET CMP0072 NEW)
 
+
 # OpenGL and GLEW installed globally on system
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
-#find_package(glfw3 REQUIRED)
+
+
+# options for QA
+option(ENABLE_QA "Enable QA tests" ON)
+if (ENABLE_QA)
+    enable_testing()
+    add_subdirectory(QA)
+endif()
 
 
 # --- Build options for GLFW ---
@@ -19,6 +27,7 @@ set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 
 # --- Add GLFW as a subproject---
 add_subdirectory(libs/glfw)
+
 
 # ------ Add ImGUI ----------
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
@@ -42,6 +51,7 @@ add_executable( run
                 src/windowManager.cpp
                 src/windowGUI.cpp
                 src/windowSimulation.cpp )
+        
 
 # Adds header source files
 target_include_directories( run PUBLIC include )
@@ -55,3 +65,5 @@ target_link_libraries(  run
 
 # links libs headers                
 target_link_directories( run PUBLIC libs/glfw/include )
+
+
