@@ -3,6 +3,15 @@
 #include <vector>
 #include "particleMethods.h"
 
+
+    // defining static class members - allocated in data segment memory  (static class variables)
+    double particle::SR = 14.0; 
+    double particle::dt = 0.2;
+    double particle::mass = 1.0;
+    double particle::kappa = 1000.0;                // stiffness parameter - gas constant
+    double particle::rest_density = 0.05;           // rest density (target density of the fluid when at equilibrium)
+    double particle::nu = 1.0;                      // viscosity strength
+
     // constructor
     particle::particle(){};
 
