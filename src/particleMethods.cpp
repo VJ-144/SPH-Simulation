@@ -18,7 +18,7 @@
     // constructor
     particle::particle( vector<double> pos, vector<double> vel, int index, int nParticles) : position(pos), velocity(vel), index_(index), nParticles_(nParticles)
     {
-        
+
         // check arguments valid
         if (2 != pos.size()) {
             printf("invalid initial position\n");

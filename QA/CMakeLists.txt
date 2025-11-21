@@ -17,7 +17,7 @@ add_executable( run_tests
                 ../src/windowGUI.cpp
                  ../src/windowSimulation.cpp
 
-                test_particleMethods.cpp    )
+                particleMethodsTest.cpp    )
 
 
 # Link to libraries we want to use

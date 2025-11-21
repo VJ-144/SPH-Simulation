@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <stdlib.h>
+#include <vector>
 
 #include "particleMethods.h"
 #include "windowManager.h"
@@ -11,11 +13,20 @@
 
 class particleMethodsFixture : public ::testing::Test {
     public:
-        particle p1;
-
+           
+        std::vector<particle> pList;
+        
     protected:
         void SetUp() override {
-            // Runs **before each test**
+            
+            std::vector<double> pos1{1.0, 1.0}, pos2{2.0, 2.0}, pos3{3.0, 3.0};
+            std::vector<double> vel1{1.0, 1.0}, vel2{2.0, 2.0}, vel3{3.0, 3.0};   
+            
+            particle p1(pos1, vel1, 0, 3);
+            particle p2(pos2, vel2, 1, 3);
+            particle p3(pos3, vel3, 2, 3);
+            
+            pList = {p1, p2, p3};        
         }
 
         void TearDown() override {
