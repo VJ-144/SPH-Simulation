@@ -83,21 +83,14 @@
             if (1 == InRange){
                     
                 vector<double> rdiff_vec = calc_rdiff(p);
-                    
-                // quadratic smoothing kernal
-                //double r_mag = mag(rdiff_vec);
-                //density += mass * W_quad(r_mag);
 
                 // guassian smoothing kernal
                 density += mass * W_gauss(rdiff_vec);
 
                 //printf("particle: %d | W_gauss: %f\n", p.index_, W_gauss(rdiff_vec) );
                 //printf("W_quad: %f\n", W_quad(r_mag) );
-
-            
             }
         }    
-    
 
         // check density for each particle
         //printf("p%d | density %f\n", index_, density);
@@ -204,15 +197,14 @@
     {
         
         // normalisation
-        //double N = 1.0 / ( 2.0 * pow(M_PI, 1.5) * abs(SR) );
-        double N = 1.0 / ( M_PI * SR * (1.0 - exp(-1.0)) );
+        double h = SR;
+        double N = 1.0 / ( h * sqrt(2.0 * M_PI) );
 
         // r^2
         double r_dot = rdiff_vec[0] * rdiff_vec[0] + rdiff_vec[1] * rdiff_vec[1];
-        //double rmag = mag(rdiff_vec);
 
         // gaussian exponential
-        double exponent = -1.0 * r_dot / pow(SR, 2.0);
+        double exponent = -0.5 * ( r_dot / pow(h, 2.0) );
         double e =  exp( exponent );
 
         return N * e;    
@@ -220,12 +212,10 @@
 
     vector<double> particle::Grad_W_gauss(vector<double> rdiff_vec)
     {
-    
-        double Ax = ( -2.0 * rdiff_vec[0] ) / pow(SR, 2.0);
-        double Ay = ( -2.0 * rdiff_vec[1] ) / pow(SR, 2.0);
+        double h = SR;  
+        double grad_Wx = W_gauss(rdiff_vec) * (-1.0) * ( rdiff_vec[0] / pow(h, 2.0) );
+        double grad_Wy = W_gauss(rdiff_vec) * (-1.0) * ( rdiff_vec[0] / pow(h, 2.0) );
 
-        double grad_Wx = W_gauss(rdiff_vec) * Ax;
-        double grad_Wy = W_gauss(rdiff_vec) * Ay;
         
         //printf("rdiffx: %f\n", rdiff_vec[0]);
         
@@ -240,10 +230,10 @@
         // r^2
         double r_dot = rdiff_vec[0] * rdiff_vec[0] + rdiff_vec[1] * rdiff_vec[1];
         
-
-        double A  = ( (4.0 * r_dot) / pow(SR, 4.0) ) - ( 2.0 / pow(SR, 2.0) );  // there might be another d multiplied by 2.0
-
-        return A * W_gauss(rdiff_vec);
+        double h = SR;
+        double factor = ( r_dot / pow(h, 4.0) ) - ( 1.0 / pow(h, 2.0) );
+    
+        return factor * W_gauss(rdiff_vec);
 
     }
 
