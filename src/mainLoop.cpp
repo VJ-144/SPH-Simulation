@@ -24,14 +24,14 @@
 double particle::SR = 14.0; 
 double particle::dt = 0.2;
 double particle::mass = 1.0;
-double particle::kappa = 1000.0;                // stiffness parameter - gas constant
-double particle::rest_density = 0.05;           // rest density (target density of the fluid when at equilibrium)
+double particle::kappa = 1000.0;                // stiffness parameter - larger value means less compressible fluid
+double particle::rest_density = 0.005;          // rest density (larger value means blobs/more dense particles in SR)
 double particle::nu = 1.0;                      // viscosity strength
 
 
 int main(int argc, char** argv) {
 
-    const int nParticles = 150;
+    const int nParticles = 50;
     vector<particle> plist;
 
     vector<double> pos = {0.0, 0.0};
@@ -47,6 +47,9 @@ int main(int argc, char** argv) {
         pos[0] = (double)x;
         pos[1] = (double)y;
 
+        //pos[0] = -97.0;
+        //pos[1] = -97.0;
+
         // set initial particle arguments and smoothing radius 
         particle p(pos, vel, i, nParticles);
 
@@ -56,10 +59,10 @@ int main(int argc, char** argv) {
 
     // local simulation parameters
     float SR = 14.0; 
-    float dt = 0.2;
+    float dt = 0.1;
     float mass = 1.0;
     float kappa = 1000.0;                // stiffness parameter - gas constant
-    float rest_density = 0.05;           // rest density (target density of the fluid when at equilibrium)
+    float rest_density = 0.005;           // rest density (target density of the fluid when at equilibrium)
     float nu = 1.0;                      // viscosity strength
 
 
@@ -142,7 +145,7 @@ int main(int argc, char** argv) {
         SR = gui.addSlider("SR:   ", (float)SR, (float)50.0, (float)0.0);
         dt = gui.addSlider("dt:   ", (float)dt, (float)1.0, (float)0.0);
         mass = gui.addSlider("mass: ", (float)mass, (float)2.0, (float)0.0);
-        rest_density = gui.addSlider("rho_0:", (float)rest_density, (float)0.5, (float)0.0);
+        rest_density = gui.addSlider("rho_0:", (float)rest_density, (float)0.01, (float)0.0);
         nu = gui.addSlider("Nu:   ", (float)nu, (float)2.0, (float)0.0);
         
         gui.endDraw();

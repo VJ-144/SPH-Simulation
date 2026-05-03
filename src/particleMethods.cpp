@@ -83,13 +83,9 @@
             if (1 == InRange){
                     
                 vector<double> rdiff_vec = calc_rdiff(p);
-                    
-                // quadratic smoothing kernal
-                //double r_mag = mag(rdiff_vec);
-                //density += mass * W_quad(r_mag);
 
-                // guassian smoothing kernal
-                density += mass * W_gauss(rdiff_vec);
+                // polynomial kernal
+                density += p.mass * W_poly6(rdiff_vec);
 
                 //printf("particle: %d | W_gauss: %f\n", p.index_, W_gauss(rdiff_vec) );
                 //printf("W_quad: %f\n", W_quad(r_mag) );
@@ -125,8 +121,8 @@
         vector<double> Fg = F_gravity();
 
 
-        force[0] = Fp[0]; // /*+ Fv[0]*/ + Fg[0];    
-        force[1] = Fp[1]; // /*+ Fv[1]*/ + Fg[1];    
+        force[0] = Fp[0]  /*+ Fv[0]*/ + Fg[0];    
+        force[1] = Fp[1]  /*+ Fv[1]*/ + Fg[1];    
 
         // checking forces
         //printf("p%d | force[0]: %f | force[1]: %f \n", index_, Fv[0], Fv[1]);        
@@ -180,52 +176,52 @@
         double y_pos = position[1];
 
         // fix x-axis particle to inside window
-        if (x_pos >= 98.0 ) {
+        if (x_pos > 98.0 ) {
             position[0] = 98.0;
             //velocity[0] *= -0.8;
-        } else if (x_pos <= -98.0) {
+        } else if (x_pos < -98.0) {
             position[0] = -98.0;
             //velocity[0] *= -0.8;
         }
         
 
         // fix y-axis particle to inside window
-        if (y_pos >= 98.0) {
+        if (y_pos > 98.0) {
             position[1] = 98.0;
             //velocity[1] *= -0.8;
-        } else if (y_pos <= -98.0) {
+        } else if (y_pos < -98.0) {
             position[1] = -98.0;
             //velocity[1] *= -0.8;
         }
     }
 
     // smoothing kernal W_ij - where pdiff is the distance between particles 
-    double particle::W_gauss(vector<double> rdiff_vec)
+    double particle::W_poly6(vector<double> rdiff_vec)
     {
         
         // normalisation
-        //double N = 1.0 / ( 2.0 * pow(M_PI, 1.5) * abs(SR) );
-        double N = 1.0 / ( M_PI * SR * (1.0 - exp(-1.0)) );
+        double N = 4.0 / ( M_PI * pow(SR, 8.0) );
 
         // r^2
-        double r_dot = rdiff_vec[0] * rdiff_vec[0] + rdiff_vec[1] * rdiff_vec[1];
-        //double rmag = mag(rdiff_vec);
+        double r_mag = mag(rdiff_vec);
 
-        // gaussian exponential
-        double exponent = -1.0 * r_dot / pow(SR, 2.0);
-        double e =  exp( exponent );
+        // polynomrail ^6 power
+        double inner = pow(SR, 2.0) - pow(r_mag, 2.0);
+        double outer = pow(inner, 3.0);
 
-        return N * e;    
+        return N * outer;    
     }
 
-    vector<double> particle::Grad_W_gauss(vector<double> rdiff_vec)
+    vector<double> particle::Grad_W_spike(vector<double> rdiff_vec)
     {
     
-        double Ax = ( -2.0 * rdiff_vec[0] ) / pow(SR, 2.0);
-        double Ay = ( -2.0 * rdiff_vec[1] ) / pow(SR, 2.0);
+        double N = -10.0 / (M_PI * pow(SR, 5.0) );
+        double r_mag = mag(rdiff_vec);
 
-        double grad_Wx = W_gauss(rdiff_vec) * Ax;
-        double grad_Wy = W_gauss(rdiff_vec) * Ay;
+        double A = pow( (SR - r_mag), 2.0 ) / r_mag;
+
+        double grad_Wx = N * A * rdiff_vec[0];
+        double grad_Wy = N * A * rdiff_vec[1];
         
         //printf("rdiffx: %f\n", rdiff_vec[0]);
         
@@ -243,7 +239,7 @@
 
         double A  = ( (4.0 * r_dot) / pow(SR, 4.0) ) - ( 2.0 / pow(SR, 2.0) );  // there might be another d multiplied by 2.0
 
-        return A * W_gauss(rdiff_vec);
+        return A * W_poly6(rdiff_vec);
 
     }
 
@@ -279,23 +275,24 @@
             int InRange = neighbor_index[p.index_];
 
             // check if neighbor particle is in smoothin radius & skipping itself 
-            if ( 1 == InRange && index_ != p.index_ ) {
+            if ( 1 == InRange && p.index_ != index_) {
 
                 // calculating grad_Pressure
-                double A = p.mass * ( (pressure + p.pressure) / (2.0 * p.density) );    
+                double A = p.mass * mass * ( ( pressure/pow(density, 2.0) ) + ( p.pressure/pow(p.density, 2.0) ) );    
 
                 vector<double> rdiff_vec = calc_rdiff(p);
-                vector<double> Grad_W = Grad_W_gauss(rdiff_vec);
-            
+                //printf("density: %f | rdiff[0]: %f\n", density ,rdiff_vec[0]);
+                vector<double> Grad_W = Grad_W_spike(rdiff_vec);
+                
                 Grad_px += (A * Grad_W[0]);
                 Grad_py += (A * Grad_W[1]);
                 //printf("p.index: %d, p.pos: %f | index: %d, pos %f \n", p.index_, p.position[0], index_, position[0]);
             }
         }
-        //printf("mass: %f | density: %f | del_px: %f \n", mass, density, del_px);
 
-        double Fx_p =  -1.0 * (mass/density) * Grad_px;
-        double Fy_p =  -1.0 * (mass/density) * Grad_py;
+        double Fx_p = -1.0 * Grad_px;
+        double Fy_p = -1.0 * Grad_py;
+        //printf("index: %d | fx_pressure: %f | fy_pressure: %f \n", index_, Fx_p, Fy_p);
         
         vector<double> Fp = {Fx_p, Fy_p};
         return Fp;
@@ -350,7 +347,7 @@
     vector<double> particle::F_gravity()
     {
 
-        double Fy_g = -1.0 * mass * 3.8;
+        double Fy_g = -1.0 * mass * 9.8;
         vector<double> Fg = {0.0, Fy_g};
         
         return Fg;
