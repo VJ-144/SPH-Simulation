@@ -118,8 +118,8 @@
         vector<double> Fg = F_gravity();
 
 
-        force[0] = Fp[0]  /*+ Fv[0]*/ + Fg[0];    
-        force[1] = Fp[1]  /*+ Fv[1]*/ + Fg[1];    
+        force[0] = Fp[0] + Fv[0] + Fg[0];    
+        force[1] = Fp[1] + Fv[1] + Fg[1];    
 
         // checking forces
         //printf("p%d | force[0]: %f | force[1]: %f \n", index_, Fv[0], Fv[1]);        
@@ -226,15 +226,14 @@
         return grad_W;
     }
 
-    double particle::Laplacian_W_gauss(vector<double> rdiff_vec)
+    double particle::Laplacian_W_visc(vector<double> rdiff_vec)
     {
         
-        // r^2
-        double r_dot = rdiff_vec[0] * rdiff_vec[0] + rdiff_vec[1] * rdiff_vec[1];        
+        // normalisation
+        double A  = 40.0 / ( M_PI * pow(SR, 5.0) );
+        double r_mag = mag(rdiff_vec);
 
-        double A  = ( (4.0 * r_dot) / pow(SR, 4.0) ) - ( 2.0 / pow(SR, 2.0) );  // there might be another d multiplied by 2.0
-
-        return A * W_poly6(rdiff_vec);        
+        return A * (SR - r_mag);        
     }
 
     // calculates magnitude of 2D vector
@@ -297,8 +296,8 @@
     vector<double> particle::F_viscosity(vector<particle> plist)
     {
     
-        double laplacian_vx = 0.0;
-        double laplacian_vy = 0.0;
+        double sumX_visc = 0.0;
+        double sumY_visc = 0.0;
 
         for (particle p : plist){
         
@@ -307,34 +306,23 @@
             // check if neighbor particle is in smoothin radius & skipping itself
             if (1 == InRange && index_ != p.index_) {
 
-                // calculating constant
-                double vx_diff =  p.velocity[0] - velocity[0];    
-                double vy_diff =  p.velocity[1] - velocity[1];
 
-                //double px_diff = position[0] - p.position[0];
-                //double py_diff = position[1] - p.position[1];
+                double Ax = p.mass * ( (p.velocity[0] - velocity[0]) / pow(p.density, 2.0) );
+                double Ay = p.mass * ( (p.velocity[1] - velocity[1]) / pow(p.density, 2.0) );
                 
                 vector<double> rdiff_vec = calc_rdiff(p);
-                double Laplacian_W = Laplacian_W_gauss(rdiff_vec);
+                double Laplacian_W = Laplacian_W_visc(rdiff_vec);
 
-                //double pdiff_dot = px_diff * px_diff + py_diff * py_diff;
-                //double pdiff_dot_W = px_diff * Grad_W[0] + py_diff * Grad_W[1];
-
-                
-                double Ax = ( p.mass / p.density ) * vx_diff;    
-                double Ay = ( p.mass / p.density ) * vy_diff;    
-
-            
-                laplacian_vx += Ax * Laplacian_W;
-                laplacian_vy += Ay * Laplacian_W;
+                sumX_visc += Ax * Laplacian_W;
+                sumY_visc += Ay * Laplacian_W;
             }
         }
 
-        double Fx_v = mass * nu * 2 * laplacian_vx;
-        double Fy_v = mass * nu * 2 * laplacian_vy;
+        double Fx_visc = nu * sumX_visc;
+        double Fy_visc = nu * sumY_visc;
         
-        vector<double> Fv = {Fx_v, Fy_v};
-        return Fv;
+        vector<double> F_visc = {Fx_visc, Fy_visc};
+        return F_visc;
     }
     
     // calc gravitational force
