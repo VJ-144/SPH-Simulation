@@ -79,12 +79,12 @@ class particle {
 
 
     // smoothing kernal W_ij - where pdiff is the distance between particles 
-    double W_gauss(vector<double> rdiff_vec);
+    double W_poly6(vector<double> rdiff_vec);
 
 
-    vector<double> Grad_W_gauss(vector<double> rdiff_vec);
+    vector<double> Grad_W_spike(vector<double> rdiff_vec);
 
-    double Laplacian_W_gauss(vector<double> rdiff_vec);            
+    double Laplacian_W_visc(vector<double> rdiff_vec);            
 
     // calculates magnitude of 2D vector
     double mag(vector<double> quant);    

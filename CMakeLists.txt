@@ -7,7 +7,6 @@ cmake_policy(SET CMP0072 NEW)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-
 # options for QA
 option(ENABLE_QA "Enable QA tests" ON)
 if (ENABLE_QA)
@@ -15,7 +14,7 @@ if (ENABLE_QA)
     add_subdirectory(QA)
 endif()
 
-
+#[===[
 # --- Build options for GLFW ---
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -27,6 +26,7 @@ set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 
 # --- Add GLFW as a subproject---
 add_subdirectory(libs/glfw)
+]===]
 
 
 # ------ Add ImGUI ----------
@@ -61,7 +61,7 @@ target_link_libraries(  run
                         GLEW::GLEW
                         glfw
                         OpenGL::GL
-                        imgui        )
+                        imgui)
 
 # links libs headers                
 target_link_directories( run PUBLIC libs/glfw/include )
