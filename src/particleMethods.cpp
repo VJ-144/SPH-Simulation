@@ -125,8 +125,8 @@
     void particle::update_vel()
     {
 
-        velocity[0] = (dt * force[0]) / mass; 
-        velocity[1] = (dt * force[1]) / mass; 
+        velocity[0] = (dt * force[0]) / ( (mass == 0) ? 1.0 : mass ); 
+        velocity[1] = (dt * force[1]) / ( (mass == 0) ? 1.0 : mass ); 
        
     }
 

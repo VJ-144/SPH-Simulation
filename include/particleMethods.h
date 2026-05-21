@@ -74,7 +74,7 @@ class particle {
     void ff_collisions(vector<particle> plist);
 
 
-  private:
+  //private:
     void fix_windowEdges();
 
 
