@@ -3,15 +3,6 @@
 #include <vector>
 #include "particleMethods.h"
 
-
-    // defining static class members - allocated in data segment memory  (static class variables)
-    double particle::SR = 14.0; 
-    double particle::dt = 0.2;
-    double particle::mass = 1.0;
-    double particle::kappa = 1000.0;                // stiffness parameter - gas constant
-    double particle::rest_density = 0.05;           // rest density (target density of the fluid when at equilibrium)
-    double particle::nu = 1.0;                      // viscosity strength
-
     // constructor
     particle::particle(){};
 
@@ -74,7 +65,6 @@
         //                                    neighbor_index[2],
         //                                    neighbor_index[3] );
 
-
     }
 
     // plist    - list of all particles
@@ -83,7 +73,7 @@
         
         density = 0.0;
         // loop over all particles
-        for (particle &p : plist){
+        for (particle p : plist){
 
             // potential neighbor index
             int InRange = neighbor_index[p.index_];
@@ -95,9 +85,6 @@
 
                 // polynomial kernal
                 density += p.mass * W_poly6(rdiff_vec);
-
-                //printf("particle: %d | W_gauss: %f\n", p.index_, W_gauss(rdiff_vec) );
-                //printf("W_quad: %f\n", W_quad(r_mag) );
             }
         }    
 
@@ -210,12 +197,16 @@
 
         // r^2
         double r_mag = mag(rdiff_vec);
-
+        //printf("SRC r_mag: %f \n", r_mag);
+        
         // polynomrail ^6 power
         double inner = pow(SR, 2.0) - pow(r_mag, 2.0);
         double outer = pow(inner, 3.0);
 
-        return N * outer;    
+        //printf("SRC SR: %f \n", SR);
+        //printf("SRC poly outer: %f \n", outer);
+        //printf("SRC poly N: %f \n", N);
+        return (N * outer);    
     }
 
     vector<double> particle::Grad_W_spike(vector<double> rdiff_vec)
@@ -257,11 +248,19 @@
     // get vector displacement between class and argument particle
     vector<double> particle::calc_rdiff(particle p2)
     {
+        vector<double> rdiff{2};
         
-        double x_coor = position[0] - p2.position[0];
-        double y_coor = position[1] - p2.position[1];
+        if (index_ == p2.index_){
+            // particles are the same and have no rdiff
+            rdiff = {0.0, 0.0};
+        } else {
+
+            double x_coor = position[0] - p2.position[0];
+            double y_coor = position[1] - p2.position[1];
         
-        vector<double> rdiff = {x_coor, y_coor};
+            rdiff = {x_coor, y_coor};
+        }
+        
         return rdiff;
     }
 

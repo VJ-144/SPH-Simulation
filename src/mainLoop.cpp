@@ -21,7 +21,7 @@
 #include "windowSimulation.h"
 
 // defining static class members - allocated in data segment memory  (static class variables)
-double particle::SR = 14.0; 
+double particle::SR = 5.0; 
 double particle::dt = 0.2;
 double particle::mass = 1.0;
 double particle::kappa = 1000.0;                // stiffness parameter - larger value means less compressible fluid
@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
     }
 
     // local simulation parameters
-    float SR = 14.0; 
+    float SR = 5.0; 
     float dt = 0.1;
     float mass = 1.0;
     float kappa = 1000.0;                // stiffness parameter - gas constant
