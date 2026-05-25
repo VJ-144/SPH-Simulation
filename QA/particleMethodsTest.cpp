@@ -80,7 +80,7 @@ TEST_F(particleMethodsFixture2, multiParticle_low_density_influence)
     double N = 4.0 / ( M_PI * pow(p.SR, 8.0) );
     double outer = pow(p.SR, 6.0); 
 
-    EXPECT_NEAR(p.density, N * outer, 0.01);
+    EXPECT_NEAR(p.density,  N * outer, 0.01);
 }
 
 // can add a test for high density - multiple particles 
@@ -163,7 +163,7 @@ TEST_F(particleMethodsFixture, velocity_euler_nonzero_mass)
 
 
 // testing window binds (100,100)
-TEST_F(particleMethodsFixture, pos_window_edge_binds)
+TEST_F(particleMethodsFixture, pos_window_edge)
 {
     // dx_dt = position[0] + ( dt * velocity[0] );
     
@@ -192,7 +192,7 @@ TEST_F(particleMethodsFixture, pos_window_edge_binds)
 
 
 // testing window binds (100,100)
-TEST_F(particleMethodsFixture, neg_window_edge_binds)
+TEST_F(particleMethodsFixture, neg_window_edge)
 {
     // dx_dt = position[0] + ( dt * velocity[0] );
     
@@ -217,4 +217,33 @@ TEST_F(particleMethodsFixture, neg_window_edge_binds)
 
     EXPECT_NEAR(p.position[0], -98.0, 0.01);
     EXPECT_NEAR(p.position[1], -98.0, 0.01);
+}
+
+
+// testing window binds (100,100)
+TEST_F(particleMethodsFixture, update_position)
+{
+    // dx_dt = position[0] + ( dt * velocity[0] );
+    
+    particle p = pList[1];
+    
+    p.position[0] =  25.0;
+    p.position[1] = -50.0;
+    
+    p.dt = 0.1;
+    
+    p.velocity[0] = -2.0; 
+    p.velocity[1] =  4.0;
+
+
+    p.update_pos();
+    
+    //  25.0 + ( 0.1 x -2.0 ) =  25.2
+    // -50.0 + ( 0.1 x  4.0 ) = -49.6
+
+    // this should bind max positions to (-98.0,-98.0)
+    p.fix_windowEdges();   
+
+    EXPECT_NEAR(p.position[0],  24.8, 0.01);
+    EXPECT_NEAR(p.position[1], -49.6, 0.01);
 }

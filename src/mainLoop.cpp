@@ -31,7 +31,7 @@ double particle::nu = 1.0;                      // viscosity strength
 
 int main(int argc, char** argv) {
 
-    const int nParticles = 50;
+    const int nParticles = 200;
     vector<particle> plist;
 
     vector<double> pos = {0.0, 0.0};

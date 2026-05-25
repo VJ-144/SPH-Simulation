@@ -114,8 +114,8 @@
         vector<double> Fg = F_gravity();
 
 
-        force[0] = Fp[0] + Fv[0] + Fg[0];    
-        force[1] = Fp[1] + Fv[1] + Fg[1];    
+        force[0] = Fp[0] + Fv[0]; //+ Fg[0];    
+        force[1] = Fp[1] + Fv[1]; //+ Fg[1];    
 
         // checking forces
         //printf("p%d | force[0]: %f | force[1]: %f \n", index_, Fv[0], Fv[1]);        
