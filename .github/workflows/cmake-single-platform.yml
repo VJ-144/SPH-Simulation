@@ -28,11 +28,17 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=make
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build
       run: cd build
       run: make -j 2
 
     - name: Test
       working-directory: ${{github.workspace}}/build
       run: QA/run_tests
+
+
+
+
+
+
+
 
