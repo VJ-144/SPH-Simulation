@@ -28,7 +28,9 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=make
 
     - name: Build
-      run: cd build
+      script: 
+        - cd build
+        - ls
       run: make -j 2
 
     - name: Test
