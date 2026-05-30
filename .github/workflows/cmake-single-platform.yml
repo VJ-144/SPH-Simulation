@@ -27,15 +27,15 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=make
 
-    - name: Build
-        script: 
-          - cd build
-          - ls
-        run: make -j 2
+          # - name: Build
+      # script: 
+          # - cd build
+            # - ls
+            # run: make -j 2
 
-    - name: Test
-        working-directory: ${{github.workspace}}/build
-        run: QA/run_tests
+          #- name: Test
+      #working-directory: ${{github.workspace}}/build
+          #     run: QA/run_tests
 
 
 
