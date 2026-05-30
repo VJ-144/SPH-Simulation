@@ -6,12 +6,17 @@
 if dpkg -s libglew-dev >/dev/null 2>&1; then
     echo "glew is installed"
 else
-    echo "glew is not installed"
+    echo "glew is not installed..."
+    echo "installing glew:"
+    sudo apt install libglew-dev  
+
 fi
 
 
 if dpkg -s libopengl-dev >/dev/null 2>&1; then
     echo "OpenGL is installed"
 else
-    echo "OpenGL is not installed"
+    echo "OpenGL is not installed..."
+    echo "installing OpenGL"
+    sudo apt install libopengl-dev
 fi
