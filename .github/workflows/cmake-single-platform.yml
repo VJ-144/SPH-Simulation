@@ -43,6 +43,7 @@ jobs:
         ./check-dependencies        
         mkdir build
         cd build
+        ls ../libs/imgui
         cmake ..
         make
         #cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=make
