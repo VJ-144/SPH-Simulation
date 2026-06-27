@@ -46,7 +46,7 @@ target_link_directories(imgui PUBLIC glfw GLEW::GLEW OpenGL::GL)
 # ---------------------------
 
 message(STATUS "IMGUI_DIR=${IMGUI_DIR}")
-message(STATUS "CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
+message(STATUS "CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
 message(STATUS "IMGUI_SOURCES=${IMGUI_SOURCES}")
 
 # adds source code
