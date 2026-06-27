@@ -24,8 +24,8 @@ fi
 
 #install imgui and glfw
 
-cd libs && rm -r /libs/*
-mkdir /libs/imgui && libs/glfw
+#cd libs && rm -r /libs/*
+#mkdir /libs/imgui && libs/glfw
 
-git clone -b v1.92.7 https://github.com/ocornut/imgui.git libs/imgui
-git clone -b 3.3.10 https://github.com/glfw/glfw.git libs/glfw
+#git clone -b v1.92.7 https://github.com/ocornut/imgui.git libs/imgui
+#git clone -b 3.3.10 https://github.com/glfw/glfw.git libs/glfw

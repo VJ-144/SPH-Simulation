@@ -26,10 +26,11 @@ set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 
 # --- Add GLFW as a subproject---
 add_subdirectory(libs/glfw)
-]===]
+#]===]
 
 
 # ------ Add ImGUI ----------
+#add_subdirectory(libs/imgui)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
 file(   GLOB IMGUI_SOURCES
         ${IMGUI_DIR}/*.cpp
