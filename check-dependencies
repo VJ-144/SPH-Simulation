@@ -20,3 +20,12 @@ else
     echo "installing OpenGL"
     sudo apt install libopengl-dev
 fi
+
+
+#install imgui and glfw
+
+cd libs && rm -r /libs/*
+mkdir /libs/imgui && libs/glfw
+
+git clone -b v1.92.7 git@github.com:ocornut/imgui.git libs/imgui
+git clone -b 3.3.10 git@github.com:glfw/glfw.git libs/glfw
