@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# this scripts installs the nessesary dependencies 
+# assumes a debian based OS
+
 #apt list --installed | grep libopengl-dev
 #apt list --installed | grep libglew-dev
 #apt list --installed | grep libglfw3-dev
@@ -43,10 +46,6 @@ else
     sudo apt install libgtest-dev
 fi
 
-#install imgui and glfw
 
-#cd libs && rm -r /libs/*
-#mkdir /libs/imgui && libs/glfw
-
+# setting up imgui for source build
 git clone -b v1.92.7 https://github.com/ocornut/imgui.git libs/imgui
-#git clone -b 3.3.10 https://github.com/glfw/glfw.git libs/glfw
