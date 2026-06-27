@@ -25,7 +25,7 @@ set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 
 # --- Add GLFW as a subproject---
-add_subdirectory(libs/glfw)
+#add_subdirectory(libs/glfw)
 #]===]
 
 
@@ -69,6 +69,6 @@ target_link_libraries(  run
                         imgui)
 
 # links libs headers                
-target_link_directories( run PUBLIC libs/glfw/include )
+#target_link_directories( run PUBLIC libs/glfw/include )
 
 
