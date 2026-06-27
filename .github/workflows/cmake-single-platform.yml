@@ -61,8 +61,8 @@ jobs:
         make
 
     - name: Test
-      #working-directory: ${{github.workspace}}      
-      run: QA/run_tests
+      working-directory: ${{github.workspace}}      
+      run: build/QA/run_tests
 
 
 
