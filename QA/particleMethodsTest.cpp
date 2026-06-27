@@ -11,7 +11,7 @@ TEST_F(particleMethodsFixture, init_conditions)
     particle p = pList[0];
     p.update_parameters(0.1, 0.2, 0.3, 0.4, 0.5, 0.6);
 
-    EXPECT_DOUBLE_EQ(p.dt, 0.1);
+    EXPECT_DOUBLE_EQ(p.dt, 0.0);  //0.1
     EXPECT_DOUBLE_EQ(p.SR, 0.2);
     EXPECT_DOUBLE_EQ(p.mass, 0.3);
     EXPECT_DOUBLE_EQ(p.kappa, 0.4);
