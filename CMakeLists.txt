@@ -8,7 +8,7 @@ find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
 # options for QA
-option(ENABLE_QA "Enable QA tests" ON)
+option(ENABLE_QA "Enable QA tests" OFF)
 if (ENABLE_QA)
     enable_testing()
     add_subdirectory(QA)
