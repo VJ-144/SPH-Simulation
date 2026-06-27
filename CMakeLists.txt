@@ -7,30 +7,29 @@ cmake_policy(SET CMP0072 NEW)
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
 
-# options for QA
-option(ENABLE_QA "Enable QA tests" ON)
+
+# options for QA (default off)
+option(ENABLE_QA "Enable QA tests" OFF)
 if (ENABLE_QA)
     enable_testing()
     add_subdirectory(QA)
 endif()
 
-#[===[
+
 # --- Build options for GLFW ---
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 
+
 # --- Force X11 and disable Wayland ---
 set(GLFW_BUILD_X11 ON CACHE BOOL "" FORCE)
 set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
 
-# --- Add GLFW as a subproject---
-add_subdirectory(libs/glfw)
-]===]
-
 
 # ------ Add ImGUI ----------
-set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/imgui)
+#add_subdirectory(libs/imgui)
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/libs/imgui)
 file(   GLOB IMGUI_SOURCES
         ${IMGUI_DIR}/*.cpp
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp   
@@ -44,6 +43,12 @@ target_include_directories( imgui PUBLIC
 target_link_directories(imgui PUBLIC glfw GLEW::GLEW OpenGL::GL)
 # ---------------------------
 
+# tests correct directories setup for debugging
+#message(STATUS "IMGUI_DIR=${IMGUI_DIR}")
+#message(STATUS "CMAKE_SOURCE_DIR=${CMAKE_SOURCE_DIR}")
+#message(STATUS "IMGUI_SOURCES=${IMGUI_SOURCES}")
+
+
 # adds source code
 add_executable( run 
                 src/mainLoop.cpp
@@ -56,14 +61,11 @@ add_executable( run
 # Adds header source files
 target_include_directories( run PUBLIC include )
 
+
 # links libs 
 target_link_libraries(  run
                         GLEW::GLEW
                         glfw
                         OpenGL::GL
                         imgui)
-
-# links libs headers                
-target_link_directories( run PUBLIC libs/glfw/include )
-
 
