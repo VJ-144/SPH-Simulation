@@ -8,7 +8,7 @@
 // test particle simulation parameter update function
 TEST_F(particleMethodsFixture, init_conditions)
 {
-    particle p = pList[0];
+    particle p = *pList[0];
     p.update_parameters(0.1, 0.2, 0.3, 0.4, 0.5, 0.6);
 
     EXPECT_DOUBLE_EQ(p.dt, 0.1);
@@ -22,7 +22,7 @@ TEST_F(particleMethodsFixture, init_conditions)
 // test calculating nearest neighbours are in smoothing radius
 TEST_F(particleMethodsFixture, NN_singleParticle)
 {
-    particle p = pList[0];
+    particle p = *pList[0];
 
     p.SR = 5.0;
     p.calc_NNindex(pList);
@@ -36,7 +36,7 @@ TEST_F(particleMethodsFixture, NN_singleParticle)
 // test calculating nearest neighbours are out of smoothing radius
 TEST_F(particleMethodsFixture, NN_multipleParticle)
 {
-    particle p = pList[0];
+    particle p = *pList[0];
 
     p.SR = 0.01;
     p.calc_NNindex(pList);

@@ -20,7 +20,7 @@ double particle::nu = 1.0;                      // viscosity strength
 class particleMethodsFixture : public ::testing::Test {
     public:
            
-        std::vector<particle> pList;
+        std::vector<*particle> pList;
         
     protected:
         void SetUp() override {
@@ -36,7 +36,7 @@ class particleMethodsFixture : public ::testing::Test {
             p2.mass = 1.0;
             p3.mass = 1.0;
             
-            pList = {p1, p2, p3};        
+            pList = {&p1, &p2, &p3};        
         }
 
         void TearDown() override {
@@ -48,7 +48,7 @@ class particleMethodsFixture : public ::testing::Test {
 class particleMethodsFixture2 : public ::testing::Test {
     public:
            
-        std::vector<particle> pList;
+        std::vector<*particle> pList;
         
     protected:
         void SetUp() override {
@@ -64,7 +64,7 @@ class particleMethodsFixture2 : public ::testing::Test {
             p2.mass = 1.0;
             p3.mass = 1.0;
 
-            pList = {p1, p2, p3};        
+            pList = {&p1, &p2, &p3};        
         }
 
         void TearDown() override {

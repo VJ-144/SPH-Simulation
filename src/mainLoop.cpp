@@ -32,7 +32,9 @@ double particle::nu = 1.0;                      // viscosity strength
 int main(int argc, char** argv) {
 
     const int nParticles = 200;
+    
     vector<particle> plist;
+    vector<particle*> plist_ptr;
 
     vector<double> pos = {0.0, 0.0};
     vector<double> vel = {0.0, 0.0};
@@ -53,7 +55,9 @@ int main(int argc, char** argv) {
         // set initial particle arguments and smoothing radius 
         particle p(pos, vel, i, nParticles);
 
+
         plist.push_back(p);
+        plist_ptr.push_back(&p);
 
     }
 
@@ -88,36 +92,36 @@ int main(int argc, char** argv) {
 
 
         // step 1: find all neighbour particles
-        for (particle &p : plist){
+        for (particle *p : plist_ptr){
             
             // calc nearest particles & stores as class variable
-           p.calc_NNindex(plist);
+           p->calc_NNindex(plist_ptr);
         }
 
 
         // step 2: calculate density per particle
-        for (particle &p : plist ){
+        for (particle *p : plist_ptr ){
            
             // particle calculates its own density
-            p.calc_density(plist);
-            p.calc_pressure();
+            //p->calc_density();
+            //p->calc_pressure();
             
         }
 
         // step 3: calculate forces
-        for (particle &p : plist) {
+        for (particle *p : plist_ptr) {
 
             // calculating force per particle    
-            p.calc_force(plist);
+            //p->calc_force();
 
         }
 
         // step 4: update vel & pos
-        for (particle &p : plist) {
+        for (particle *p : plist_ptr) {
 
             // calculating force per particle    
-            p.update_vel();
-            p.update_pos();
+           // p->update_vel();
+           // p->update_pos();
                         
             //printf("index %d | px:%f | py:%f \n", p.index_,  p.position[0], p.position[1]);
         }
@@ -142,7 +146,6 @@ int main(int argc, char** argv) {
         gui.endDraw();
         gui.Render();
    
-
 
         // render particles
         simWindow.DrawParticles(plist);

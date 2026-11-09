@@ -20,8 +20,7 @@
         }
 
         density = 0.0;
-        neighbor_index = (int*)malloc( nParticles_ * sizeof(int) );
-    
+
     }
 
     
@@ -37,25 +36,22 @@
     }
 
     // calculate nearest neighbor indices
-    void particle::calc_NNindex( vector<particle> plist ){
+    void particle::calc_NNindex( vector<particle*> plist ){
        
-        for (int i=0; i<nParticles_; i++){
-            neighbor_index[i] = -1;
-        }
+        // empty nearest neighbors and release allocated memory
+        neighbor_index.clear();
+        neighbor_index.shrink_to_fit();
 
-        for (particle &p : plist){
+        for (particle *p : plist){
             
             // calc vector & magnitude displacement
-            vector<double> rdiff_vec = calc_rdiff(p);
+            vector<double> rdiff_vec = calc_rdiff(*p);
             double rdiff = mag(rdiff_vec);
             
             // sets cloests neighbor particles
             if (rdiff <= SR){
-                neighbor_index[p.index_] = 1;
-            } else {
-                neighbor_index[p.index_] = -1;
-            
-            } 
+                neighbor_index.push_back(p);
+            }  
         }
 
         // checking NN
@@ -68,28 +64,28 @@
     }
 
     // plist    - list of all particles
-    void particle::calc_density(vector<particle> plist)
+    void particle::calc_density()
     {
         
-        density = 0.0;
-        // loop over all particles
-        for (particle p : plist){
+        density=0.0;
 
-            // potential neighbor index
-            int InRange = neighbor_index[p.index_];
+        // check if neighbor particle is in smoothin radius
+        for (int i=0;  i<numN; i++){
+            
+            // pointer to object
+            particle *p = neighbor_index[i];
 
-            // check if neighbor particle is in smoothin radius
-            if (1 == InRange){
-                    
-                vector<double> rdiff_vec = calc_rdiff(p);
+            if (p != nullptr) {
+                vector<double> rdiff_vec = calc_rdiff(*p);
 
                 // polynomial kernal
-                density += p.mass * W_poly6(rdiff_vec);
+                density += p->mass * W_poly6(rdiff_vec);
             }
-        }    
+        }
+     
 
         // check density for each particle
-        //printf("p%d | density %f\n", index_, density);
+        // printf("p%d | density %f\n", index_, density);
      }
 
     void particle::calc_pressure()
@@ -100,7 +96,7 @@
 
 
     // calculates pressure, viscosity and gravitational force on particle
-    void particle::calc_force(vector<particle> plist)
+    void particle::calc_force()
     {
    
 
@@ -109,16 +105,16 @@
 
         // pressure + viscocity force is bugged and always zero
 
-        vector<double> Fp = F_pressure(plist);
-        vector<double> Fv = F_viscosity(plist);
+        vector<double> Fp = F_pressure();
+        vector<double> Fv = F_viscosity();
         vector<double> Fg = F_gravity();
 
 
-        force[0] = Fp[0] + Fv[0]; //+ Fg[0];    
-        force[1] = Fp[1] + Fv[1]; //+ Fg[1];    
+        force[0] = Fp[0] + Fv[0] + Fg[0];    
+        force[1] = Fp[1] + Fv[1] + Fg[1];    
 
         // checking forces
-        //printf("p%d | force[0]: %f | force[1]: %f \n", index_, Fv[0], Fv[1]);        
+        printf("p%d | force[0]: %f | force[1]: %f \n", index_, Fv[0], Fv[1]);        
     }
 
     // updates velocity
@@ -265,23 +261,24 @@
     }
 
     // calc pressure force
-    vector<double> particle::F_pressure(vector<particle> plist)
+    vector<double> particle::F_pressure()
     {
 
         double Grad_px = 0.0;
         double Grad_py = 0.0;
 
-        for (particle p : plist){
+        for (int i=0; i<numN; i++){
         
-            int InRange = neighbor_index[p.index_];
+            // pointer to neighbor particle object
+            particle *p = neighbor_index[i];
 
-            // check if neighbor particle is in smoothin radius & skipping itself 
-            if ( 1 == InRange && p.index_ != index_) {
+            // skipping itself
+            if (p != nullptr  && index_ != p->index_){
 
                 // calculating grad_Pressure
-                double A = p.mass * mass * ( ( pressure/pow(density, 2.0) ) + ( p.pressure/pow(p.density, 2.0) ) );    
+                double A = p->mass * mass * ( ( pressure/pow(density, 2.0) ) + ( p->pressure/pow(p->density, 2.0) ) );    
 
-                vector<double> rdiff_vec = calc_rdiff(p);
+                vector<double> rdiff_vec = calc_rdiff(*p);
                 //printf("density: %f | rdiff[0]: %f\n", density ,rdiff_vec[0]);
                 vector<double> Grad_W = Grad_W_spike(rdiff_vec);
                 
@@ -301,24 +298,24 @@
 
 
     // calc viscosity force
-    vector<double> particle::F_viscosity(vector<particle> plist)
+    vector<double> particle::F_viscosity()
     {
     
         double sumX_visc = 0.0;
         double sumY_visc = 0.0;
 
-        for (particle p : plist){
+        for (int i=0; i<numN; i++){
         
-            int InRange = neighbor_index[p.index_];
+            // pointer to neighbir particle object
+            particle *p = neighbor_index[i];
 
-            // check if neighbor particle is in smoothin radius & skipping itself
-            if (1 == InRange && index_ != p.index_) {
-
-
-                double Ax = p.mass * ( (p.velocity[0] - velocity[0]) / pow(p.density, 2.0) );
-                double Ay = p.mass * ( (p.velocity[1] - velocity[1]) / pow(p.density, 2.0) );
+            // skipping itself
+            if (p != nullptr && index_ != p->index_){
+            
+                double Ax = p->mass * ( (p->velocity[0] - velocity[0]) / pow(p->density, 2.0) );
+                double Ay = p->mass * ( (p->velocity[1] - velocity[1]) / pow(p->density, 2.0) );
                 
-                vector<double> rdiff_vec = calc_rdiff(p);
+                vector<double> rdiff_vec = calc_rdiff(*p);
                 double Laplacian_W = Laplacian_W_visc(rdiff_vec);
 
                 sumX_visc += Ax * Laplacian_W;

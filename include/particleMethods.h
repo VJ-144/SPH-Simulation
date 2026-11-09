@@ -16,9 +16,10 @@ class particle {
     // particle label
     int index_;
     int nParticles_;
-
-    // list of all neighbor particles
-    int *neighbor_index;
+    
+    // we want an array of pointers where each pointer is the pointer to a particles address
+    vector <particle*> neighbor_index;
+    int numN=100;
 
     // static belongs to the class - not specific to the object
     static double SR;
@@ -53,16 +54,16 @@ class particle {
     static void update_parameters(double newDT, double newSR, double newMass, double newKappa, double newRestDensity, double newNu);            
 
     // calculate nearest neighbor indices
-    void calc_NNindex( vector<particle> plist );
+    void calc_NNindex( vector<particle*> plist );
 
     // plist    - list of all particles
-    void calc_density(vector<particle> plist);
+    void calc_density();
 
     // calculate restoring pressure
     void calc_pressure();           
 
     // calculates pressure, viscosity and gravitational force on particle
-    void calc_force(vector<particle> plist);
+    void calc_force();
 
     // updates velocity
     void update_vel();
@@ -93,10 +94,10 @@ class particle {
     vector<double> calc_rdiff(particle p2);            
 
     // calc pressure force
-    vector<double> F_pressure(vector<particle> plist);
+    vector<double> F_pressure();
 
     // calc viscosity force
-    vector<double> F_viscosity(vector<particle> plist);
+    vector<double> F_viscosity();
     
     // calc gravitational force
     vector<double> F_gravity();
